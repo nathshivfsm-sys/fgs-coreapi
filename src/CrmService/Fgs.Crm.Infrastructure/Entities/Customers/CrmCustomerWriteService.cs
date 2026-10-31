@@ -187,6 +187,130 @@ public sealed class CrmCustomerWriteService : ICrmCustomerWriteService
         return (await _readRepository.GetServiceLocationByIdAsync(customer.Id, location.Id, cancellationToken))!;
     }
 
+    public async Task<CrmNoteDetailDto> AddNoteAsync(
+        long customerId,
+        CrmNoteCreateDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        EnsureNoteType(dto.NoteTypeId);
+
+        var customer = await FindEntityAsync(customerId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Customer '{customerId}' was not found.");
+
+        var note = new CrmNote
+        {
+            EntityTypeId = (int)CrmTaggedEntityType.Customer,
+            EntityId = customer.Id,
+            NoteTypeId = dto.NoteTypeId,
+            Title = TrimOrNull(dto.Title),
+            NoteText = dto.NoteText.Trim(),
+            DisplayOrder = dto.DisplayOrder,
+            IsPinned = dto.IsPinned
+        };
+
+        _auditHelper.StampForCreate(note);
+        await _context.CrmNotes.AddAsync(note, cancellationToken);
+        await SaveChangesAsync(cancellationToken);
+
+        return MapNoteToDetail(note, customer.Id);
+    }
+
+    public async Task<CrmNoteDetailDto> UpdateNoteAsync(
+        long customerId,
+        long noteId,
+        CrmNoteUpdateDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        EnsureNoteType(dto.NoteTypeId);
+
+        _ = await FindEntityAsync(customerId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Customer '{customerId}' was not found.");
+
+        var note = await FindCustomerNoteAsync(customerId, noteId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Note '{noteId}' was not found.");
+
+        note.NoteTypeId = dto.NoteTypeId;
+        note.Title = TrimOrNull(dto.Title);
+        note.NoteText = dto.NoteText.Trim();
+        note.DisplayOrder = dto.DisplayOrder;
+        note.IsPinned = dto.IsPinned;
+        _auditHelper.StampForUpdate(note);
+        await SaveChangesAsync(cancellationToken);
+
+        return MapNoteToDetail(note, customerId);
+    }
+
+    public async Task<CrmNoteDetailDto> PatchNoteAsync(
+        long customerId,
+        long noteId,
+        CrmNotePatchDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        if (dto.NoteTypeId.HasValue)
+        {
+            EnsureNoteType(dto.NoteTypeId.Value);
+        }
+
+        _ = await FindEntityAsync(customerId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Customer '{customerId}' was not found.");
+
+        var note = await FindCustomerNoteAsync(customerId, noteId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Note '{noteId}' was not found.");
+
+        if (dto.NoteText is not null)
+        {
+            note.NoteText = dto.NoteText.Trim();
+        }
+
+        if (dto.Title is not null)
+        {
+            note.Title = TrimOrNull(dto.Title);
+        }
+
+        if (dto.NoteTypeId.HasValue)
+        {
+            note.NoteTypeId = dto.NoteTypeId.Value;
+        }
+
+        if (dto.DisplayOrder.HasValue)
+        {
+            note.DisplayOrder = dto.DisplayOrder.Value;
+        }
+
+        if (dto.IsPinned.HasValue)
+        {
+            note.IsPinned = dto.IsPinned.Value;
+        }
+
+        if (dto.IsActive.HasValue)
+        {
+            note.IsActive = dto.IsActive.Value;
+        }
+
+        _auditHelper.StampForUpdate(note);
+        await SaveChangesAsync(cancellationToken);
+
+        return MapNoteToDetail(note, customerId);
+    }
+
+    public async Task<CrmNoteDetailDto> DeleteNoteAsync(
+        long customerId,
+        long noteId,
+        CancellationToken cancellationToken = default)
+    {
+        _ = await FindEntityAsync(customerId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Customer '{customerId}' was not found.");
+
+        var note = await FindCustomerNoteAsync(customerId, noteId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Note '{noteId}' was not found.");
+
+        note.IsActive = false;
+        _auditHelper.StampForUpdate(note);
+        await SaveChangesAsync(cancellationToken);
+
+        return MapNoteToDetail(note, customerId);
+    }
+
     public async Task<CrmCustomerDetailDto> UpdateAsync(
         long id,
         CrmCustomerUpdateDto dto,
@@ -462,6 +586,39 @@ public sealed class CrmCustomerWriteService : ICrmCustomerWriteService
 
     private async Task<CrmCustomer?> FindEntityAsync(long id, CancellationToken cancellationToken) =>
         await _context.CrmCustomers.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+
+    private async Task<CrmNote?> FindCustomerNoteAsync(
+        long customerId,
+        long noteId,
+        CancellationToken cancellationToken) =>
+        await _context.CrmNotes.FirstOrDefaultAsync(
+            e => e.Id == noteId
+                && e.EntityId == customerId
+                && e.EntityTypeId == (int)CrmTaggedEntityType.Customer,
+            cancellationToken);
+
+    private static void EnsureNoteType(short noteTypeId)
+    {
+        if (!Enum.IsDefined(typeof(CrmNoteType), noteTypeId))
+        {
+            throw new ArgumentException("NoteTypeId must be between 1 and 5.");
+        }
+    }
+
+    private static CrmNoteDetailDto MapNoteToDetail(CrmNote note, long customerId) =>
+        new(
+            note.Id,
+            customerId,
+            note.NoteTypeId,
+            note.Title,
+            note.NoteText,
+            note.DisplayOrder,
+            note.IsPinned,
+            note.IsActive,
+            note.CreatedOn,
+            note.CreatedBy,
+            note.UpdatedOn,
+            note.UpdatedBy);
 
     private async Task SaveChangesAsync(CancellationToken cancellationToken)
     {

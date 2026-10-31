@@ -4,8 +4,10 @@ using Fgs.Crm.Application.Abstractions.Customers;
 using Fgs.Crm.Application.Common.CrmCrud;
 using Fgs.Crm.Application.Features.Customers.Dtos;
 using Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerById;
+using Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerNoteById;
 using Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerServiceLocationById;
 using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCompanyServiceLocations;
+using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomerNotes;
 using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomerServiceLocations;
 using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomers;
 using Fgs.Crm.Domain.Entities;
@@ -325,6 +327,44 @@ public sealed class CrmCustomerQueryHandlerTests
         var handler = new GetCrmCustomerServiceLocationByIdQueryHandler(readRepository.Object);
         var response = await handler.Handle(
             new GetCrmCustomerServiceLocationByIdQuery(1, 99),
+            CancellationToken.None);
+
+        response.Success.Should().BeFalse();
+        response.StatusCode.Should().Be(ApiStatusCodes.NotFound);
+    }
+
+    [Fact]
+    public async Task ListNotes_WhenCustomerMissing_ReturnsNotFound()
+    {
+        var readRepository = new Mock<ICrmCustomerReadRepository>();
+        readRepository
+            .Setup(r => r.ListNotesAsync(
+                99,
+                It.IsAny<CrmListQuery>(),
+                It.IsAny<CrmNoteListFilters>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((CrmNoteListResultDto?)null);
+
+        var handler = new ListCrmCustomerNotesQueryHandler(readRepository.Object);
+        var response = await handler.Handle(
+            new ListCrmCustomerNotesQuery(99, new CrmListQuery(), new CrmNoteListFilters()),
+            CancellationToken.None);
+
+        response.Success.Should().BeFalse();
+        response.StatusCode.Should().Be(ApiStatusCodes.NotFound);
+    }
+
+    [Fact]
+    public async Task GetNoteById_WhenMissing_ReturnsNotFound()
+    {
+        var readRepository = new Mock<ICrmCustomerReadRepository>();
+        readRepository
+            .Setup(r => r.GetNoteByIdAsync(1, 99, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((CrmNoteDetailDto?)null);
+
+        var handler = new GetCrmCustomerNoteByIdQueryHandler(readRepository.Object);
+        var response = await handler.Handle(
+            new GetCrmCustomerNoteByIdQuery(1, 99),
             CancellationToken.None);
 
         response.Success.Should().BeFalse();
@@ -687,6 +727,75 @@ public sealed class CrmCustomerReadRepositoryTests
         byCreatedOn!.Items.Select(i => i.Name).Should().Equal("Earlier", "Later");
         byCreatedBy!.Items.Select(i => i.CreatedBy).Should().Equal("user-a", "user-b");
         unknown!.Items.Select(i => i.Id).Should().Equal(later.Id, earlier.Id);
+    }
+
+    [Fact]
+    public async Task ListAndGetNotes_ScopeSearchSortAndHideSoftDeleted()
+    {
+        await using var context = await CreateContextAsync();
+        var owner = await SeedCustomerAsync(context, "CUST01", "Acme", contactName: null, email: null, phone: null);
+        var other = await SeedCustomerAsync(context, "CUST02", "Other", contactName: null, email: null, phone: null);
+
+        var pinned = await SeedNoteAsync(
+            context,
+            owner.Id,
+            "Pinned billing",
+            "Bill soon",
+            noteTypeId: (short)CrmNoteType.Billing,
+            displayOrder: 2,
+            isPinned: true,
+            createdOn: new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        var unpinned = await SeedNoteAsync(
+            context,
+            owner.Id,
+            "General note",
+            "Follow up",
+            noteTypeId: (short)CrmNoteType.General,
+            displayOrder: 1,
+            isPinned: false,
+            createdOn: new DateTimeOffset(2026, 2, 1, 0, 0, 0, TimeSpan.Zero));
+        var inactive = await SeedNoteAsync(
+            context,
+            owner.Id,
+            "Inactive",
+            "Gone",
+            isActive: false);
+        await SeedNoteAsync(context, other.Id, "Foreign", "Other customer note");
+
+        var repository = new CrmCustomerReadRepository(context);
+        var listed = await repository.ListNotesAsync(
+            owner.Id,
+            new CrmListQuery(),
+            new CrmNoteListFilters());
+        listed.Should().NotBeNull();
+        listed!.Items.Select(i => i.Id).Should().Equal(pinned.Id, unpinned.Id);
+        listed.TotalCount.Should().Be(2);
+
+        var searched = await repository.ListNotesAsync(
+            owner.Id,
+            new CrmListQuery(Search: "bill"),
+            new CrmNoteListFilters());
+        searched!.Items.Should().ContainSingle(i => i.Id == pinned.Id);
+
+        var filtered = await repository.ListNotesAsync(
+            owner.Id,
+            new CrmListQuery(),
+            new CrmNoteListFilters(NoteTypeId: (short)CrmNoteType.Billing, IsPinned: true));
+        filtered!.Items.Should().ContainSingle(i => i.Id == pinned.Id);
+
+        var byTitle = await repository.ListNotesAsync(
+            owner.Id,
+            new CrmListQuery(SortBy: "title"),
+            new CrmNoteListFilters());
+        byTitle!.Items.Select(i => i.Title).Should().Equal("General note", "Pinned billing");
+
+        var detail = await repository.GetNoteByIdAsync(owner.Id, pinned.Id);
+        detail.Should().NotBeNull();
+        detail!.CustomerId.Should().Be(owner.Id);
+
+        (await repository.GetNoteByIdAsync(owner.Id, inactive.Id)).Should().BeNull();
+        (await repository.GetNoteByIdAsync(other.Id, pinned.Id)).Should().BeNull();
+        (await repository.ListNotesAsync(999, new CrmListQuery(), new CrmNoteListFilters())).Should().BeNull();
     }
 
     [Fact]
@@ -1130,6 +1239,37 @@ public sealed class CrmCustomerReadRepositoryTests
 
         await context.SaveChangesAsync();
         return location;
+    }
+
+    private static async Task<CrmNote> SeedNoteAsync(
+        FgsCrmDbContext context,
+        long customerId,
+        string? title,
+        string noteText,
+        short noteTypeId = (short)CrmNoteType.General,
+        short displayOrder = 1,
+        bool isPinned = false,
+        bool isActive = true,
+        DateTimeOffset? createdOn = null)
+    {
+        var note = new CrmNote
+        {
+            TenantId = 10,
+            CompanyId = 20,
+            EntityTypeId = (int)CrmTaggedEntityType.Customer,
+            EntityId = customerId,
+            NoteTypeId = noteTypeId,
+            Title = title,
+            NoteText = noteText,
+            DisplayOrder = displayOrder,
+            IsPinned = isPinned,
+            IsActive = isActive,
+            CreatedOn = createdOn ?? DateTimeOffset.UtcNow,
+            CreatedBy = "seed"
+        };
+        context.CrmNotes.Add(note);
+        await context.SaveChangesAsync();
+        return note;
     }
 
     private static async Task<CrmCustomer> SeedCustomerAsync(

@@ -1,13 +1,17 @@
 using System.Linq.Expressions;
 using Fgs.Crm.Application.Abstractions.Customers;
+using Fgs.Crm.Application.Features.Customers.Commands.AddCrmCustomerNote;
 using Fgs.Crm.Application.Features.Customers.Commands.AddCrmCustomerServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.PatchCrmCustomer;
+using Fgs.Crm.Application.Features.Customers.Commands.PatchCrmCustomerNote;
 using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomer;
+using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomerNote;
 using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomerServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Commands.UpsertCrmDefaultCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.UpsertCrmDefaultServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Dtos;
+using Fgs.Crm.Domain.Enums;
 using Fgs.Foundation.Validation;
 using FluentValidation;
 
@@ -322,6 +326,81 @@ public sealed class UpdateCrmCustomerServiceLocationCommandValidator : AbstractV
         When(x => x.Dto is not null, () =>
         {
             RuleFor(x => x.Dto).SetValidator(new CrmServiceLocationUpdateDtoValidator());
+        });
+    }
+}
+
+public sealed class AddCrmCustomerNoteCommandValidator : AbstractValidator<AddCrmCustomerNoteCommand>
+{
+    public AddCrmCustomerNoteCommandValidator()
+    {
+        RuleFor(x => x.CustomerId).GreaterThan(0);
+        RuleFor(x => x.Dto)
+            .NotNull()
+            .WithMessage(
+                "Request body is required. Ensure the JSON is valid (unresolved Postman variables produce invalid JSON).");
+
+        When(x => x.Dto is not null, () =>
+        {
+            RuleFor(x => x.Dto.NoteText).NotEmpty();
+            RuleFor(x => x.Dto.Title).MaximumLength(200);
+            RuleFor(x => x.Dto.NoteTypeId)
+                .Must(id => Enum.IsDefined(typeof(CrmNoteType), id))
+                .WithMessage("NoteTypeId must be a defined note type.");
+            RuleFor(x => x.Dto.DisplayOrder).GreaterThan((short)0);
+        });
+    }
+}
+
+public sealed class UpdateCrmCustomerNoteCommandValidator : AbstractValidator<UpdateCrmCustomerNoteCommand>
+{
+    public UpdateCrmCustomerNoteCommandValidator()
+    {
+        RuleFor(x => x.CustomerId).GreaterThan(0);
+        RuleFor(x => x.NoteId).GreaterThan(0);
+        RuleFor(x => x.Dto)
+            .NotNull()
+            .WithMessage(
+                "Request body is required. Ensure the JSON is valid (unresolved Postman variables produce invalid JSON).");
+
+        When(x => x.Dto is not null, () =>
+        {
+            RuleFor(x => x.Dto.NoteText).NotEmpty();
+            RuleFor(x => x.Dto.Title).MaximumLength(200);
+            RuleFor(x => x.Dto.NoteTypeId)
+                .Must(id => Enum.IsDefined(typeof(CrmNoteType), id))
+                .WithMessage("NoteTypeId must be a defined note type.");
+            RuleFor(x => x.Dto.DisplayOrder).GreaterThan((short)0);
+        });
+    }
+}
+
+public sealed class PatchCrmCustomerNoteCommandValidator : AbstractValidator<PatchCrmCustomerNoteCommand>
+{
+    public PatchCrmCustomerNoteCommandValidator()
+    {
+        RuleFor(x => x.CustomerId).GreaterThan(0);
+        RuleFor(x => x.NoteId).GreaterThan(0);
+        RuleFor(x => x.Dto)
+            .NotNull()
+            .WithMessage(
+                "Request body is required. Ensure the JSON is valid (unresolved Postman variables produce invalid JSON).");
+
+        When(x => x.Dto is not null, () =>
+        {
+            RuleFor(x => x.Dto.NoteText)
+                .NotEmpty()
+                .When(x => x.Dto.NoteText is not null);
+            RuleFor(x => x.Dto.Title)
+                .MaximumLength(200)
+                .When(x => x.Dto.Title is not null);
+            RuleFor(x => x.Dto.NoteTypeId)
+                .Must(id => Enum.IsDefined(typeof(CrmNoteType), id!.Value))
+                .WithMessage("NoteTypeId must be a defined note type.")
+                .When(x => x.Dto.NoteTypeId.HasValue);
+            RuleFor(x => x.Dto.DisplayOrder)
+                .GreaterThan((short)0)
+                .When(x => x.Dto.DisplayOrder.HasValue);
         });
     }
 }

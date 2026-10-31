@@ -1,7 +1,10 @@
 using Fgs.Crm.Application.Abstractions.Customers;
+using Fgs.Crm.Application.Features.Customers.Commands.AddCrmCustomerNote;
 using Fgs.Crm.Application.Features.Customers.Commands.AddCrmCustomerServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer;
+using Fgs.Crm.Application.Features.Customers.Commands.PatchCrmCustomerNote;
 using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomer;
+using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomerNote;
 using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomerServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Commands.UpsertCrmDefaultCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.UpsertCrmDefaultServiceLocation;
@@ -270,6 +273,50 @@ public sealed class CrmCustomerValidatorTests
         missingDisplayNameResult.IsValid.Should().BeFalse();
         missingDisplayNameResult.Errors.Should().Contain(e => e.PropertyName == "Dto.DisplayName");
         validResult.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task AddNoteValidator_RequiresNoteTextAndDefinedNoteType()
+    {
+        var validator = new AddCrmCustomerNoteCommandValidator();
+        var missingText = new AddCrmCustomerNoteCommand(1, new CrmNoteCreateDto(""));
+        var badType = new AddCrmCustomerNoteCommand(1, new CrmNoteCreateDto("ok", NoteTypeId: 99));
+        var valid = new AddCrmCustomerNoteCommand(1, new CrmNoteCreateDto("ok"));
+
+        var missingTextResult = await validator.ValidateAsync(missingText);
+        var badTypeResult = await validator.ValidateAsync(badType);
+        var validResult = await validator.ValidateAsync(valid);
+
+        missingTextResult.IsValid.Should().BeFalse();
+        missingTextResult.Errors.Should().Contain(e => e.PropertyName == "Dto.NoteText");
+        badTypeResult.IsValid.Should().BeFalse();
+        badTypeResult.Errors.Should().Contain(e => e.PropertyName == "Dto.NoteTypeId");
+        validResult.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UpdateAndPatchNoteValidators_RejectEmptyNoteTextAndBadType()
+    {
+        var updateValidator = new UpdateCrmCustomerNoteCommandValidator();
+        var patchValidator = new PatchCrmCustomerNoteCommandValidator();
+
+        var emptyUpdate = new UpdateCrmCustomerNoteCommand(
+            1,
+            2,
+            new CrmNoteUpdateDto("", "t", (short)CrmNoteType.General, 1, false));
+        var badUpdateType = new UpdateCrmCustomerNoteCommand(
+            1,
+            2,
+            new CrmNoteUpdateDto("ok", null, 9, 1, false));
+        var emptyPatch = new PatchCrmCustomerNoteCommand(1, 2, new CrmNotePatchDto(NoteText: " "));
+        var badPatchType = new PatchCrmCustomerNoteCommand(1, 2, new CrmNotePatchDto(NoteTypeId: 0));
+        var validPatch = new PatchCrmCustomerNoteCommand(1, 2, new CrmNotePatchDto(IsPinned: true));
+
+        (await updateValidator.ValidateAsync(emptyUpdate)).IsValid.Should().BeFalse();
+        (await updateValidator.ValidateAsync(badUpdateType)).IsValid.Should().BeFalse();
+        (await patchValidator.ValidateAsync(emptyPatch)).IsValid.Should().BeFalse();
+        (await patchValidator.ValidateAsync(badPatchType)).IsValid.Should().BeFalse();
+        (await patchValidator.ValidateAsync(validPatch)).IsValid.Should().BeTrue();
     }
 
     [Fact]

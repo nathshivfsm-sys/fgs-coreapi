@@ -1,16 +1,22 @@
 using Asp.Versioning;
 using Fgs.Contracts.Api;
 using Fgs.Crm.Application.Common.CrmCrud;
+using Fgs.Crm.Application.Features.Customers.Commands.AddCrmCustomerNote;
 using Fgs.Crm.Application.Features.Customers.Commands.AddCrmCustomerServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer;
+using Fgs.Crm.Application.Features.Customers.Commands.DeleteCrmCustomerNote;
 using Fgs.Crm.Application.Features.Customers.Commands.PatchCrmCustomer;
+using Fgs.Crm.Application.Features.Customers.Commands.PatchCrmCustomerNote;
 using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomer;
+using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomerNote;
 using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomerServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Commands.UpsertCrmDefaultCustomer;
 using Fgs.Crm.Application.Features.Customers.Dtos;
 using Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerById;
+using Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerNoteById;
 using Fgs.Crm.Application.Features.Customers.Queries.GetCrmCustomerServiceLocationById;
 using Fgs.Crm.Application.Features.Customers.Queries.GetCrmDefaultCustomer;
+using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomerNotes;
 using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomerServiceLocations;
 using Fgs.Crm.Application.Features.Customers.Queries.ListCrmCustomers;
 using Fgs.Crm.Application.Features.Customers.Queries.LookupCrmCustomers;
@@ -215,6 +221,113 @@ public sealed class CustomerController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new PatchCrmCustomerCommand(id, request), cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [RequirePermission(FgsPermissionCodes.CustomerView)]
+    [HttpGet("{id:long}/note")]
+    [ProducesResponseType(typeof(ApiResponse<CrmNoteListResultDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ListNotes(
+        long id,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 25,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] SortDirection sortDirection = SortDirection.Asc,
+        [FromQuery] string? search = null,
+        [FromQuery] bool? isActive = true,
+        [FromQuery] short? noteTypeId = null,
+        [FromQuery] bool? isPinned = null,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await mediator.Send(
+            new ListCrmCustomerNotesQuery(
+                id,
+                new CrmListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
+                new CrmNoteListFilters(noteTypeId, isPinned)),
+            cancellationToken);
+
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [RequirePermission(FgsPermissionCodes.CustomerView)]
+    [HttpGet("{id:long}/note/{noteId:long}")]
+    [ProducesResponseType(typeof(ApiResponse<CrmNoteDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetNote(
+        long id,
+        long noteId,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(
+            new GetCrmCustomerNoteByIdQuery(id, noteId),
+            cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [RequirePermission(FgsPermissionCodes.CustomerCreate)]
+    [Idempotent]
+    [HttpPost("{id:long}/note")]
+    [ProducesResponseType(typeof(ApiResponse<CrmNoteDetailDto>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AddNote(
+        long id,
+        [FromBody] CrmNoteCreateDto request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(
+            new AddCrmCustomerNoteCommand(id, request),
+            cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [RequirePermission(FgsPermissionCodes.CustomerEdit)]
+    [HttpPut("{id:long}/note/{noteId:long}")]
+    [ProducesResponseType(typeof(ApiResponse<CrmNoteDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateNote(
+        long id,
+        long noteId,
+        [FromBody] CrmNoteUpdateDto request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(
+            new UpdateCrmCustomerNoteCommand(id, noteId, request),
+            cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [RequirePermission(FgsPermissionCodes.CustomerEdit)]
+    [HttpPatch("{id:long}/note/{noteId:long}")]
+    [ProducesResponseType(typeof(ApiResponse<CrmNoteDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> PatchNote(
+        long id,
+        long noteId,
+        [FromBody] CrmNotePatchDto request,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(
+            new PatchCrmCustomerNoteCommand(id, noteId, request),
+            cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [RequirePermission(FgsPermissionCodes.CustomerEdit)]
+    [HttpDelete("{id:long}/note/{noteId:long}")]
+    [ProducesResponseType(typeof(ApiResponse<CrmNoteDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteNote(
+        long id,
+        long noteId,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(
+            new DeleteCrmCustomerNoteCommand(id, noteId),
+            cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
 }

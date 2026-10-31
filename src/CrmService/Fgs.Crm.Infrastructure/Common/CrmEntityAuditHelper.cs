@@ -81,6 +81,16 @@ public sealed class CrmEntityAuditHelper
             entity.CompanyId = companyId;
         });
 
+    public void StampForCreate(CrmNote entity)
+    {
+        StampAudit(entity, (tenantId, companyId) =>
+        {
+            entity.TenantId = tenantId;
+            entity.CompanyId = companyId;
+        });
+        entity.IsActive = true;
+    }
+
     private void StampAudit(FgsEntityBase entity, Action<long, long> assignScope)
     {
         var now = _dateTimeProvider.UtcNow;
@@ -105,6 +115,8 @@ public sealed class CrmEntityAuditHelper
     public void StampForUpdate(CrmContact entity) => StampUpdated(entity);
 
     public void StampForUpdate(CrmContactCommunication entity) => StampUpdated(entity);
+
+    public void StampForUpdate(CrmNote entity) => StampUpdated(entity);
 
     private void StampUpdated(FgsEntityBase entity)
     {

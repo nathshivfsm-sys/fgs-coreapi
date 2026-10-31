@@ -42297,6 +42297,395 @@
               }
             },
             {
+              "name": "List notes",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "query": [
+                    {
+                      "key": "page",
+                      "description": "Page number (1-based). Default: 1.",
+                      "value": "{{page}}"
+                    },
+                    {
+                      "key": "pageSize",
+                      "description": "Items per page. Default: 25. Clamped to 1-200.",
+                      "value": "{{pageSize}}"
+                    },
+                    {
+                      "key": "sortBy",
+                      "description": "Optional. displayOrder, createdOn, updatedOn, title, noteTypeId, isPinned. Omitted sorts IsPinned desc, DisplayOrder asc, CreatedOn desc.",
+                      "value": "{{sortBy}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "sortDirection",
+                      "description": "Sort direction: Asc or Desc. Default: Asc. Used when sortBy is set.",
+                      "value": "{{sortDirection}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "search",
+                      "description": "Search Title and NoteText.",
+                      "value": "{{search}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "isActive",
+                      "description": "Filter by active notes. Default: true.",
+                      "value": "true"
+                    },
+                    {
+                      "key": "noteTypeId",
+                      "description": "Optional. 1=General, 2=Internal, 3=Alert, 4=Billing, 5=Service.",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "isPinned",
+                      "description": "Optional. Filter pinned notes.",
+                      "value": "true",
+                      "disabled": true
+                    }
+                  ],
+                  "host": [
+                    "https://developer.fsm.com"
+                  ],
+                  "raw": "https://developer.fsm.com/api/v1/customer/{{customerId}}/note",
+                  "path": [
+                    "api",
+                    "v1",
+                    "customer",
+                    "{{customerId}}",
+                    "note"
+                  ]
+                },
+                "description": "List customer notes. Requires CUSTOMER.VIEW. 404 when the customer does not exist. EntityTypeId is always Customer.",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
+                ],
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
+            },
+            {
+              "name": "Add note",
+              "request": {
+                "method": "POST",
+                "url": {
+                  "host": [
+                    "https://developer.fsm.com"
+                  ],
+                  "raw": "https://developer.fsm.com/api/v1/customer/{{customerId}}/note",
+                  "path": [
+                    "api",
+                    "v1",
+                    "customer",
+                    "{{customerId}}",
+                    "note"
+                  ]
+                },
+                "description": "Create a customer note. noteText required. Optional title, noteTypeId (default 1), displayOrder (default 1), isPinned (default false). Requires CUSTOMER.CREATE.",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "type": "text",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "raw": "{\n  \"noteText\": \"Follow up next week\",\n  \"title\": \"Call\",\n  \"noteTypeId\": 1,\n  \"displayOrder\": 1,\n  \"isPinned\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  },
+                  "mode": "raw"
+                },
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              },
+              "event": [
+                {
+                  "script": {
+                    "exec": [
+                      "const body = pm.response.json();",
+                      "if (body.success && body.data && body.data.id != null) {",
+                      "  pm.environment.set(\"noteId\", String(body.data.id));",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  },
+                  "listen": "test"
+                }
+              ]
+            },
+            {
+              "name": "Get note",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "host": [
+                    "https://developer.fsm.com"
+                  ],
+                  "raw": "https://developer.fsm.com/api/v1/customer/{{customerId}}/note/{{noteId}}",
+                  "path": [
+                    "api",
+                    "v1",
+                    "customer",
+                    "{{customerId}}",
+                    "note",
+                    "{{noteId}}"
+                  ]
+                },
+                "description": "Get one active customer note. Requires CUSTOMER.VIEW. 404 when missing, soft-deleted, or not under the customer.",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
+                ],
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
+            },
+            {
+              "name": "Update note",
+              "request": {
+                "method": "PUT",
+                "url": {
+                  "host": [
+                    "https://developer.fsm.com"
+                  ],
+                  "raw": "https://developer.fsm.com/api/v1/customer/{{customerId}}/note/{{noteId}}",
+                  "path": [
+                    "api",
+                    "v1",
+                    "customer",
+                    "{{customerId}}",
+                    "note",
+                    "{{noteId}}"
+                  ]
+                },
+                "description": "Full replace of a customer note. Requires CUSTOMER.EDIT.",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "type": "text",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "raw": "{\n  \"noteText\": \"Updated follow up\",\n  \"title\": \"Call\",\n  \"noteTypeId\": 4,\n  \"displayOrder\": 2,\n  \"isPinned\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  },
+                  "mode": "raw"
+                },
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
+            },
+            {
+              "name": "Patch note",
+              "request": {
+                "method": "PATCH",
+                "url": {
+                  "host": [
+                    "https://developer.fsm.com"
+                  ],
+                  "raw": "https://developer.fsm.com/api/v1/customer/{{customerId}}/note/{{noteId}}",
+                  "path": [
+                    "api",
+                    "v1",
+                    "customer",
+                    "{{customerId}}",
+                    "note",
+                    "{{noteId}}"
+                  ]
+                },
+                "description": "Partial update of a customer note. Requires CUSTOMER.EDIT.",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "type": "text",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "raw": "{\n  \"isPinned\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  },
+                  "mode": "raw"
+                },
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
+            },
+            {
+              "name": "Delete note",
+              "request": {
+                "method": "DELETE",
+                "url": {
+                  "host": [
+                    "https://developer.fsm.com"
+                  ],
+                  "raw": "https://developer.fsm.com/api/v1/customer/{{customerId}}/note/{{noteId}}",
+                  "path": [
+                    "api",
+                    "v1",
+                    "customer",
+                    "{{customerId}}",
+                    "note",
+                    "{{noteId}}"
+                  ]
+                },
+                "description": "Soft-delete a customer note (IsActive=false). Requires CUSTOMER.EDIT.",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "type": "text",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-Tenant-Id",
+                    "type": "text",
+                    "value": "{{tenantId}}"
+                  },
+                  {
+                    "key": "X-Company-Id",
+                    "type": "text",
+                    "value": "{{companyId}}"
+                  }
+                ],
+                "auth": {
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "type": "string",
+                      "value": "{{accessToken}}"
+                    }
+                  ],
+                  "type": "bearer"
+                }
+              }
+            },
+            {
               "name": "Update",
               "request": {
                 "url": {

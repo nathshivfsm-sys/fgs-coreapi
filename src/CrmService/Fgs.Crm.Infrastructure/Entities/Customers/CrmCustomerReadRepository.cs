@@ -122,6 +122,76 @@ internal sealed class CrmCustomerReadRepository(
         return new CrmCompanyServiceLocationListResultDto(items, page, pageSize, totalCount, summary);
     }
 
+    public async Task<CrmNoteListResultDto?> ListNotesAsync(
+        long customerId,
+        CrmListQuery query,
+        CrmNoteListFilters filters,
+        CancellationToken cancellationToken = default)
+    {
+        var customerExists = await dbContext.CrmCustomers
+            .AsNoTracking()
+            .AnyAsync(e => e.Id == customerId, cancellationToken);
+
+        if (!customerExists)
+        {
+            return null;
+        }
+
+        var paging = query.ToPagedQuery();
+        var page = Math.Max(1, paging.Page);
+        var pageSize = Math.Clamp(paging.PageSize, 1, 200);
+        var customerEntityType = (int)CrmTaggedEntityType.Customer;
+
+        var dbQuery = dbContext.CrmNotes
+            .AsNoTracking()
+            .Where(e => e.EntityTypeId == customerEntityType && e.EntityId == customerId);
+
+        if (paging.IsActive.HasValue)
+        {
+            dbQuery = dbQuery.Where(e => e.IsActive == paging.IsActive.Value);
+        }
+
+        if (filters.NoteTypeId.HasValue)
+        {
+            dbQuery = dbQuery.Where(e => e.NoteTypeId == filters.NoteTypeId.Value);
+        }
+
+        if (filters.IsPinned.HasValue)
+        {
+            dbQuery = dbQuery.Where(e => e.IsPinned == filters.IsPinned.Value);
+        }
+
+        dbQuery = ApplyNoteSearch(dbQuery, paging.Search);
+        dbQuery = ApplyNoteSort(dbQuery, paging.SortBy, paging.SortDirection);
+
+        var totalCount = await dbQuery.CountAsync(cancellationToken);
+        var notes = await dbQuery
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        var items = notes.Select(n => MapNoteToDetail(n, customerId)).ToList();
+        return new CrmNoteListResultDto(items, page, pageSize, totalCount);
+    }
+
+    public async Task<CrmNoteDetailDto?> GetNoteByIdAsync(
+        long customerId,
+        long noteId,
+        CancellationToken cancellationToken = default)
+    {
+        var customerEntityType = (int)CrmTaggedEntityType.Customer;
+        var note = await dbContext.CrmNotes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                e => e.Id == noteId
+                    && e.EntityId == customerId
+                    && e.EntityTypeId == customerEntityType
+                    && e.IsActive,
+                cancellationToken);
+
+        return note is null ? null : MapNoteToDetail(note, customerId);
+    }
+
     public async Task<CrmServiceLocationDetailDto?> GetServiceLocationByIdAsync(
         long customerId,
         long serviceLocationId,
@@ -628,6 +698,76 @@ internal sealed class CrmCustomerReadRepository(
             _ => desc ? query.OrderByDescending(e => e.Id) : query.OrderBy(e => e.Id)
         };
     }
+
+    private static IQueryable<CrmNote> ApplyNoteSearch(IQueryable<CrmNote> query, string? search)
+    {
+        if (string.IsNullOrWhiteSpace(search))
+        {
+            return query;
+        }
+
+        var term = search.Trim().ToLower();
+        return query.Where(e =>
+            (e.Title != null && e.Title.ToLower().Contains(term))
+            || e.NoteText.ToLower().Contains(term));
+    }
+
+    private static IQueryable<CrmNote> ApplyNoteSort(
+        IQueryable<CrmNote> query,
+        string? sortBy,
+        SortDirection direction)
+    {
+        var desc = direction == SortDirection.Desc;
+        var key = sortBy?.Trim().ToLowerInvariant();
+        if (string.IsNullOrEmpty(key))
+        {
+            return query
+                .OrderByDescending(e => e.IsPinned)
+                .ThenBy(e => e.DisplayOrder)
+                .ThenByDescending(e => e.CreatedOn);
+        }
+
+        return key switch
+        {
+            "displayorder" => desc
+                ? query.OrderByDescending(e => e.DisplayOrder).ThenByDescending(e => e.Id)
+                : query.OrderBy(e => e.DisplayOrder).ThenBy(e => e.Id),
+            "createdon" => desc
+                ? query.OrderByDescending(e => e.CreatedOn).ThenByDescending(e => e.Id)
+                : query.OrderBy(e => e.CreatedOn).ThenBy(e => e.Id),
+            "updatedon" => desc
+                ? query.OrderByDescending(e => e.UpdatedOn).ThenByDescending(e => e.Id)
+                : query.OrderBy(e => e.UpdatedOn).ThenBy(e => e.Id),
+            "title" => desc
+                ? query.OrderByDescending(e => e.Title).ThenByDescending(e => e.Id)
+                : query.OrderBy(e => e.Title).ThenBy(e => e.Id),
+            "notetypeid" => desc
+                ? query.OrderByDescending(e => e.NoteTypeId).ThenByDescending(e => e.Id)
+                : query.OrderBy(e => e.NoteTypeId).ThenBy(e => e.Id),
+            "ispinned" => desc
+                ? query.OrderByDescending(e => e.IsPinned).ThenByDescending(e => e.Id)
+                : query.OrderBy(e => e.IsPinned).ThenBy(e => e.Id),
+            _ => query
+                .OrderByDescending(e => e.IsPinned)
+                .ThenBy(e => e.DisplayOrder)
+                .ThenByDescending(e => e.CreatedOn)
+        };
+    }
+
+    private static CrmNoteDetailDto MapNoteToDetail(CrmNote note, long customerId) =>
+        new(
+            note.Id,
+            customerId,
+            note.NoteTypeId,
+            note.Title,
+            note.NoteText,
+            note.DisplayOrder,
+            note.IsPinned,
+            note.IsActive,
+            note.CreatedOn,
+            note.CreatedBy,
+            note.UpdatedOn,
+            note.UpdatedBy);
 
     private IQueryable<CrmServiceLocation> ApplyCompanyServiceLocationSort(
         IQueryable<CrmServiceLocation> query,

@@ -30,6 +30,17 @@ public interface ICrmCustomerReadRepository
         long serviceLocationId,
         CancellationToken cancellationToken = default);
 
+    Task<CrmNoteListResultDto?> ListNotesAsync(
+        long customerId,
+        CrmListQuery query,
+        CrmNoteListFilters filters,
+        CancellationToken cancellationToken = default);
+
+    Task<CrmNoteDetailDto?> GetNoteByIdAsync(
+        long customerId,
+        long noteId,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<CrmCustomerLookupDto>> LookupAsync(
         bool activeOnly = true,
         CancellationToken cancellationToken = default);

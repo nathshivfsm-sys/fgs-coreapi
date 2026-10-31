@@ -480,3 +480,49 @@ public sealed record CrmDefaultServiceLocationUpsertDto(
     long? InvoiceSmsTemplateId,
     bool SmsAllowed,
     bool TaxExempt);
+
+public sealed record CrmNoteDetailDto(
+    long Id,
+    long CustomerId,
+    short NoteTypeId,
+    string? Title,
+    string NoteText,
+    short DisplayOrder,
+    bool IsPinned,
+    bool IsActive,
+    DateTimeOffset CreatedOn,
+    string? CreatedBy,
+    DateTimeOffset? UpdatedOn,
+    string? UpdatedBy);
+
+public sealed record CrmNoteListResultDto(
+    IReadOnlyList<CrmNoteDetailDto> Items,
+    int Page,
+    int PageSize,
+    int TotalCount);
+
+public sealed record CrmNoteListFilters(
+    short? NoteTypeId = null,
+    bool? IsPinned = null);
+
+public sealed record CrmNoteCreateDto(
+    string NoteText,
+    string? Title = null,
+    short NoteTypeId = (short)CrmNoteType.General,
+    short DisplayOrder = 1,
+    bool IsPinned = false);
+
+public sealed record CrmNoteUpdateDto(
+    string NoteText,
+    string? Title,
+    short NoteTypeId,
+    short DisplayOrder,
+    bool IsPinned);
+
+public sealed record CrmNotePatchDto(
+    string? NoteText = null,
+    string? Title = null,
+    short? NoteTypeId = null,
+    short? DisplayOrder = null,
+    bool? IsPinned = null,
+    bool? IsActive = null);

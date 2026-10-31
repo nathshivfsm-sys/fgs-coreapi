@@ -30,6 +30,12 @@ tmp-*.json
 **/.env.local
 /.tmp
 /tools/credential-migration/post-credentials.ps1
+/tools/accept-token-localhost.pem
+/tools/accept-token-localhost-key.pem
+/tools/accept-token-localhost.pfx
 /src/UserService/Fgs.User.Tests/coverage.cobertura.xml
 /docs/api/scripts/Generate-PostmanCollections.ps1
 /tools/credential-migration/post-credentials.ps1
+/tools/export-localhost-cert.py
+/tools/serve-accept-token-https.ps1
+/tools/serve-accept-token-https.py

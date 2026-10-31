@@ -1,4 +1,8 @@
+using Fgs.Crm.Application.Features.Customers.Commands.AddCrmCustomerNote;
 using Fgs.Crm.Application.Features.Customers.Commands.CreateCrmCustomer;
+using Fgs.Crm.Application.Features.Customers.Commands.DeleteCrmCustomerNote;
+using Fgs.Crm.Application.Features.Customers.Commands.PatchCrmCustomerNote;
+using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomerNote;
 using Fgs.Crm.Application.Features.Customers.Commands.UpdateCrmCustomerServiceLocation;
 using Fgs.Crm.Application.Features.Customers.Commands.UpsertCrmDefaultCustomer;
 using Fgs.Crm.Application.Features.Customers.Commands.UpsertCrmDefaultServiceLocation;
@@ -437,6 +441,146 @@ public sealed class CrmCustomerCommandHandlerTests
             999,
             new CrmServiceLocationCreateDto(ServiceLocationType.Other));
         await missing.Should().ThrowAsync<KeyNotFoundException>();
+    }
+
+    [Fact]
+    public async Task AddNoteHandler_CreatesCustomerScopedNoteAndBustsCache()
+    {
+        await using var context = await CreateContextAsync();
+        var writeService = CreateWriteService(context);
+        var created = await writeService.CreateAsync(SampleCreateDto());
+        var cache = new Mock<ICacheService>();
+        var handler = new AddCrmCustomerNoteCommandHandler(
+            writeService,
+            cache.Object,
+            CreateTenantContextAccessor(),
+            NullLogger<AddCrmCustomerNoteCommandHandler>.Instance);
+
+        var response = await handler.Handle(
+            new AddCrmCustomerNoteCommand(
+                created.Customer.Id,
+                new CrmNoteCreateDto("Follow up next week", "Call", (short)CrmNoteType.Billing, 2, true)),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.StatusCode.Should().Be(201);
+        response.Data!.CustomerId.Should().Be(created.Customer.Id);
+        response.Data.NoteText.Should().Be("Follow up next week");
+        response.Data.Title.Should().Be("Call");
+        response.Data.NoteTypeId.Should().Be((short)CrmNoteType.Billing);
+        response.Data.DisplayOrder.Should().Be(2);
+        response.Data.IsPinned.Should().BeTrue();
+        response.Data.IsActive.Should().BeTrue();
+
+        var note = await context.CrmNotes.SingleAsync();
+        note.EntityTypeId.Should().Be((int)CrmTaggedEntityType.Customer);
+        note.EntityId.Should().Be(created.Customer.Id);
+        cache.Verify(
+            c => c.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "customer"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task NoteMutations_UpdatePatchDelete_RespectCustomerScopeAndSoftDelete()
+    {
+        await using var context = await CreateContextAsync();
+        var writeService = CreateWriteService(context);
+        var first = await writeService.CreateAsync(SampleCreateDto());
+        var second = await writeService.CreateAsync(SampleCreateDto() with { CustomerNumber = "CUST02" });
+        var note = await writeService.AddNoteAsync(
+            first.Customer.Id,
+            new CrmNoteCreateDto("Original text", "Original"));
+
+        var updated = await writeService.UpdateNoteAsync(
+            first.Customer.Id,
+            note.Id,
+            new CrmNoteUpdateDto("Updated text", "Updated", (short)CrmNoteType.Alert, 3, true));
+        updated.NoteText.Should().Be("Updated text");
+        updated.Title.Should().Be("Updated");
+        updated.NoteTypeId.Should().Be((short)CrmNoteType.Alert);
+        updated.DisplayOrder.Should().Be(3);
+        updated.IsPinned.Should().BeTrue();
+
+        var cache = new Mock<ICacheService>();
+        var patchHandler = new PatchCrmCustomerNoteCommandHandler(
+            writeService,
+            cache.Object,
+            CreateTenantContextAccessor(),
+            NullLogger<PatchCrmCustomerNoteCommandHandler>.Instance);
+        var patched = await patchHandler.Handle(
+            new PatchCrmCustomerNoteCommand(
+                first.Customer.Id,
+                note.Id,
+                new CrmNotePatchDto(NoteText: "Patched text", IsPinned: false)),
+            CancellationToken.None);
+        patched.Data!.NoteText.Should().Be("Patched text");
+        patched.Data.IsPinned.Should().BeFalse();
+        patched.Data.Title.Should().Be("Updated");
+
+        var foreign = () => writeService.UpdateNoteAsync(
+            second.Customer.Id,
+            note.Id,
+            new CrmNoteUpdateDto("Nope", null, (short)CrmNoteType.General, 1, false));
+        await foreign.Should().ThrowAsync<KeyNotFoundException>();
+
+        var deleteHandler = new DeleteCrmCustomerNoteCommandHandler(
+            writeService,
+            cache.Object,
+            CreateTenantContextAccessor(),
+            NullLogger<DeleteCrmCustomerNoteCommandHandler>.Instance);
+        var deleted = await deleteHandler.Handle(
+            new DeleteCrmCustomerNoteCommand(first.Customer.Id, note.Id),
+            CancellationToken.None);
+        deleted.Data!.IsActive.Should().BeFalse();
+        (await context.CrmNotes.SingleAsync()).IsActive.Should().BeFalse();
+
+        cache.Verify(
+            c => c.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "customer"),
+                It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task AddNote_UnknownCustomer_IsNotFound()
+    {
+        await using var context = await CreateContextAsync();
+        var writeService = CreateWriteService(context);
+
+        var act = () => writeService.AddNoteAsync(999, new CrmNoteCreateDto("text"));
+        await act.Should().ThrowAsync<KeyNotFoundException>();
+    }
+
+    [Fact]
+    public async Task UpdateNoteHandler_BustsCache()
+    {
+        await using var context = await CreateContextAsync();
+        var writeService = CreateWriteService(context);
+        var created = await writeService.CreateAsync(SampleCreateDto());
+        var note = await writeService.AddNoteAsync(created.Customer.Id, new CrmNoteCreateDto("text"));
+        var cache = new Mock<ICacheService>();
+        var handler = new UpdateCrmCustomerNoteCommandHandler(
+            writeService,
+            cache.Object,
+            CreateTenantContextAccessor(),
+            NullLogger<UpdateCrmCustomerNoteCommandHandler>.Instance);
+
+        var response = await handler.Handle(
+            new UpdateCrmCustomerNoteCommand(
+                created.Customer.Id,
+                note.Id,
+                new CrmNoteUpdateDto("changed", "t", (short)CrmNoteType.Internal, 1, false)),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Data!.NoteText.Should().Be("changed");
+        cache.Verify(
+            c => c.RemoveByPrefixAsync(
+                CacheKeys.EntityPrefix(TenantId, CompanyId, "customer"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]

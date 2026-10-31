@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "headroom": {
+      "type": "stdio",
+      "command": "C:\\Users\\user1\\.local\\bin\\headroom.exe",
+      "args": [
+        "mcp",
+        "serve",
+        "--proxy-url",
+        "http://127.0.0.1:8787"
+      ]
+    }
+  }
+}
