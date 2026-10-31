@@ -2980,6 +2980,72 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                     b.ToTable("FgsSetupPostalCode", "setup");
                 });
 
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupPriceBookVersion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(0);
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CompanyId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<DateOnly>("EffectiveFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("EffectiveTo")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset?>("UpdatedOn")
+                        .HasColumnType("timestamptz");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("character varying(25)");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("TenantId", "CompanyId", "Version")
+                        .HasName("UQ_FgsSetupPriceBookVersion_TenantId_CompanyId_Version");
+
+                    b.HasIndex("TenantId", "CompanyId", "EffectiveFrom")
+                        .HasDatabaseName("IX_FgsSetupPriceBookVersion_TenantId_CompanyId_EffectiveFrom");
+
+                    b.HasIndex("TenantId", "CompanyId", "IsActive")
+                        .HasDatabaseName("IX_FgsSetupPriceBookVersion_TenantId_CompanyId_IsActive");
+
+                    b.ToTable("FgsSetupPriceBookVersion", "setup", t =>
+                        {
+                            t.HasCheckConstraint("CK_FgsSetupPriceBookVersion_EffectiveDates", "\"EffectiveTo\" IS NULL OR \"EffectiveTo\" >= \"EffectiveFrom\"");
+                        });
+                });
+
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupPricingMatrix", b =>
                 {
                     b.Property<long>("Id")
@@ -9334,6 +9400,16 @@ namespace Fgs.Setup.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_FgsSetupPostalCode_FgsTenantCompanyCache_TenantId_CompanyId");
+                });
+
+            modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupPriceBookVersion", b =>
+                {
+                    b.HasOne("Fgs.Setup.Domain.Entities.FgsTenantCompanyCache", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FgsSetupPriceBookVersion_FgsTenantCompanyCache_TenantId_CompanyId");
                 });
 
             modelBuilder.Entity("Fgs.Setup.Domain.Entities.FgsSetupPricingMatrix", b =>

@@ -107,6 +107,7 @@ internal static class EntitySchemaRegistry
         [typeof(FgsJobTypeTask)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsPriceBook)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsPriceBookItem)] = FgsDatabaseSchemas.Setup,
+        [typeof(FgsSetupPriceBookVersion)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsSetupTimeSlot)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsSetupTechTrade)] = FgsDatabaseSchemas.Setup,
         [typeof(FgsSetupTechSkillLevel)] = FgsDatabaseSchemas.Setup,
