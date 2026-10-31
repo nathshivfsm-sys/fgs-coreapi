@@ -45,12 +45,13 @@ public sealed class PricingMatrixController(IMediator mediator) : ControllerBase
         [FromQuery] bool? isActive = null,
         [FromQuery] string? code = null,
         [FromQuery] bool? isDefault = null,
+        [FromQuery] short? category = null,
         CancellationToken cancellationToken = default)
     {
         var response = await mediator.Send(
             new ListSetupPricingMatricesQuery(
                 new SetupListQuery(page, pageSize, sortBy, sortDirection, search, isActive),
-                new FgsSetupPricingMatrixListFilters(code, isDefault)),
+                new FgsSetupPricingMatrixListFilters(code, isDefault, category)),
             cancellationToken);
 
         return StatusCode(response.StatusCode, response);

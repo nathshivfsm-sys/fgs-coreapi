@@ -31,7 +31,8 @@ public sealed class PatchFgsSetupPricingMatrixCommandHandler(
             await cache.RemoveAsync(
                 CacheKeys.Build(tenantScope.TenantId, tenantScope.CompanyId, "pricingmatrix", request.Id.ToString()),
                 cancellationToken);
-            return ApiResponse<FgsSetupPricingMatrixDetailDto>.Ok(result);
+            return ApiResponse<FgsSetupPricingMatrixDetailDto>.Ok(
+                result, message: "Pricing matrix updated successfully.");
         }
         catch (KeyNotFoundException)
         {

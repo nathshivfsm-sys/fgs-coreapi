@@ -90,6 +90,11 @@ internal sealed class FgsSetupPricingMatrixReadRepository : IFgsSetupPricingMatr
             where.Add("pm.\"IsDefault\" = @FilterIsDefault");
         }
 
+        if (filters.Category.HasValue)
+        {
+            where.Add($"({FgsSetupPricingMatrixSql.CategoryExpression}) = @FilterCategory");
+        }
+
         if (!string.IsNullOrWhiteSpace(paging.Search))
         {
             where.Add("(pm.\"Code\" ILIKE @Search OR pm.\"Name\" ILIKE @Search)");
@@ -117,6 +122,7 @@ internal sealed class FgsSetupPricingMatrixReadRepository : IFgsSetupPricingMatr
             IsActive = paging.IsActive,
             Code = filters.Code?.Trim().ToUpperInvariant(),
             FilterIsDefault = filters.IsDefault,
+            FilterCategory = filters.Category,
             Search = string.IsNullOrWhiteSpace(paging.Search) ? null : $"%{paging.Search.Trim()}%",
             PageSize = pageSize,
             Offset = offset

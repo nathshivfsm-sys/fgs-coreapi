@@ -18214,6 +18214,12 @@
                       "description": "Optional isDefault filter.",
                       "value": "",
                       "disabled": true
+                    },
+                    {
+                      "key": "category",
+                      "description": "Optional derived category filter: 1=Material, 2=Labor, 3=Other.",
+                      "value": "",
+                      "disabled": true
                     }
                   ],
                   "host": [

@@ -8,6 +8,7 @@ public sealed record FgsSetupPricingMatrixSummaryDto(
     bool IsLaborTierStructure,
     bool IsLaborRateBySkillLevel,
     short PriceAdjustmentTypeId,
+    short Category,
     DateOnly EffectiveFrom,
     DateOnly? EffectiveTo,
     bool IsMobileVisible,
@@ -21,6 +22,7 @@ public sealed record FgsSetupPricingMatrixDetailDto(
     bool IsLaborTierStructure,
     bool IsLaborRateBySkillLevel,
     short PriceAdjustmentTypeId,
+    short Category,
     DateOnly EffectiveFrom,
     DateOnly? EffectiveTo,
     bool IsMobileVisible,
@@ -30,7 +32,8 @@ public sealed record FgsSetupPricingMatrixLookupDto(
     long Id,
     string Code,
     string Name,
-    bool IsDefault);
+    bool IsDefault,
+    short Category);
 
 public sealed record FgsSetupPricingMatrixCreateDto(
     string Name,
@@ -68,7 +71,8 @@ public sealed record FgsSetupPricingMatrixPatchDto(
 
 public sealed record FgsSetupPricingMatrixListFilters(
     string? Code = null,
-    bool? IsDefault = null);
+    bool? IsDefault = null,
+    short? Category = null);
 
 /// <summary>Header flags used by child validators.</summary>
 public sealed record FgsSetupPricingMatrixFlagsDto(

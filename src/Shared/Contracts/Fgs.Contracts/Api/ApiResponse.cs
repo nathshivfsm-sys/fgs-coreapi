@@ -8,14 +8,17 @@ public sealed class ApiResponse<T>
 
     public T? Data { get; init; }
 
+    public string? Message { get; init; }
+
     public IReadOnlyList<string> Errors { get; init; } = [];
 
-    public static ApiResponse<T> Ok(T data, int statusCode = ApiStatusCodes.Ok) =>
+    public static ApiResponse<T> Ok(T data, int statusCode = ApiStatusCodes.Ok, string? message = null) =>
         new()
         {
             Success = true,
             StatusCode = statusCode,
             Data = data,
+            Message = message,
             Errors = []
         };
 

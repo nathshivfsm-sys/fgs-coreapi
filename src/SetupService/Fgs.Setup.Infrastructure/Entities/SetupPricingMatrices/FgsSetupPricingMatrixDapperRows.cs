@@ -18,6 +18,8 @@ internal sealed class FgsSetupPricingMatrixHeaderRow
 
     public short PriceAdjustmentTypeId { get; init; }
 
+    public short Category { get; init; }
+
     public DateOnly EffectiveFrom { get; init; }
 
     public DateOnly? EffectiveTo { get; init; }
@@ -28,14 +30,14 @@ internal sealed class FgsSetupPricingMatrixHeaderRow
 
     public FgsSetupPricingMatrixSummaryDto ToSummaryDto() =>
         new(Id, Code, Name, IsDefault, IsLaborTierStructure, IsLaborRateBySkillLevel,
-            PriceAdjustmentTypeId, EffectiveFrom, EffectiveTo, IsMobileVisible, IsActive);
+            PriceAdjustmentTypeId, Category, EffectiveFrom, EffectiveTo, IsMobileVisible, IsActive);
 
     public FgsSetupPricingMatrixDetailDto ToDetailDto() =>
         new(Id, Code, Name, IsDefault, IsLaborTierStructure, IsLaborRateBySkillLevel,
-            PriceAdjustmentTypeId, EffectiveFrom, EffectiveTo, IsMobileVisible, IsActive);
+            PriceAdjustmentTypeId, Category, EffectiveFrom, EffectiveTo, IsMobileVisible, IsActive);
 
     public FgsSetupPricingMatrixLookupDto ToLookupDto() =>
-        new(Id, Code, Name, IsDefault);
+        new(Id, Code, Name, IsDefault, Category);
 
     public FgsSetupPricingMatrixFlagsDto ToFlagsDto() =>
         new(Id, IsLaborTierStructure, IsLaborRateBySkillLevel, PriceAdjustmentTypeId, IsActive);

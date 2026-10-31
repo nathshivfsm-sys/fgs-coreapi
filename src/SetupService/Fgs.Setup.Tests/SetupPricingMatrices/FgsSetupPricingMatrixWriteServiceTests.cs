@@ -3,6 +3,7 @@ using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Implementations;
 using Fgs.Security.Abstractions;
 using Fgs.Setup.Application.Features.SetupPricingMatrices.Dtos;
+using Fgs.Setup.Domain.Enums;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
@@ -52,6 +53,39 @@ public sealed class FgsSetupPricingMatrixWriteServiceTests
         result.IsLaborTierStructure.Should().BeTrue();
         result.IsLaborRateBySkillLevel.Should().BeTrue();
         result.IsMobileVisible.Should().BeFalse();
+        result.PriceAdjustmentTypeId.Should().Be(1);
+        result.Category.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_DoesNotChangePriceAdjustmentType()
+    {
+        await using var context = await CreateContextAsync();
+        var service = CreateWriteService(context);
+        var created = await service.CreateAsync(BuildCreate("KEEPTYPE"));
+
+        var result = await service.UpdateAsync(created.Id,
+            new("KEEPTYPE", "Still type 1", false, false, false, 2,
+                new DateOnly(2026, 1, 1), null, true));
+
+        result.PriceAdjustmentTypeId.Should().Be(1);
+        (await context.FgsSetupPricingMatrices.FindAsync(created.Id))!.PriceAdjustmentTypeId
+            .Should().Be(PriceAdjustmentType.MarkupPercent);
+    }
+
+    [Fact]
+    public async Task PatchAsync_DoesNotChangePriceAdjustmentType()
+    {
+        await using var context = await CreateContextAsync();
+        var service = CreateWriteService(context);
+        var created = await service.CreateAsync(BuildCreate("PATCHTYPE"));
+
+        var result = await service.PatchAsync(created.Id,
+            new(null, null, null, null, null, 3, null, null, null, null));
+
+        result.PriceAdjustmentTypeId.Should().Be(1);
+        (await context.FgsSetupPricingMatrices.FindAsync(created.Id))!.PriceAdjustmentTypeId
+            .Should().Be(PriceAdjustmentType.MarkupPercent);
     }
 
     [Fact]

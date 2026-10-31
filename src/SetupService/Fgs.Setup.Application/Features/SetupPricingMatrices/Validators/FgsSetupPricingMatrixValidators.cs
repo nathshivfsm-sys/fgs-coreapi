@@ -58,10 +58,31 @@ public sealed class UpdateFgsSetupPricingMatrixCommandValidator : AbstractValida
             RuleFor(x => x.Dto.PriceAdjustmentTypeId)
                 .InclusiveBetween((short)1, (short)3)
                 .When(x => x.Dto.PriceAdjustmentTypeId.HasValue);
+            RuleFor(x => x)
+                .MustAsync(async (command, cancellationToken) =>
+                    await IsPriceAdjustmentTypeUnchangedAsync(
+                        readRepository, command.Id, command.Dto.PriceAdjustmentTypeId, cancellationToken))
+                .When(x => x.Dto.PriceAdjustmentTypeId.HasValue)
+                .WithMessage("Price adjustment type cannot be changed after create.");
             RuleFor(x => x.Dto)
                 .Must(dto => dto.EffectiveTo is null || dto.EffectiveFrom is null || dto.EffectiveTo >= dto.EffectiveFrom)
                 .WithMessage("EffectiveTo must be greater than or equal to EffectiveFrom.");
         });
+    }
+
+    private static async Task<bool> IsPriceAdjustmentTypeUnchangedAsync(
+        IFgsSetupPricingMatrixReadRepository readRepository,
+        long id,
+        short? priceAdjustmentTypeId,
+        CancellationToken cancellationToken)
+    {
+        if (!priceAdjustmentTypeId.HasValue)
+        {
+            return true;
+        }
+
+        var flags = await readRepository.GetFlagsByIdAsync(id, cancellationToken);
+        return flags is null || flags.PriceAdjustmentTypeId == priceAdjustmentTypeId.Value;
     }
 }
 
@@ -94,9 +115,30 @@ public sealed class PatchFgsSetupPricingMatrixCommandValidator : AbstractValidat
                 .When(x => x.Dto.PriceAdjustmentTypeId.HasValue);
             RuleFor(x => x)
                 .MustAsync(async (command, cancellationToken) =>
+                    await IsPriceAdjustmentTypeUnchangedAsync(
+                        readRepository, command.Id, command.Dto.PriceAdjustmentTypeId, cancellationToken))
+                .When(x => x.Dto.PriceAdjustmentTypeId.HasValue)
+                .WithMessage("Price adjustment type cannot be changed after create.");
+            RuleFor(x => x)
+                .MustAsync(async (command, cancellationToken) =>
                     command.Dto.Name is null ||
                     !await readRepository.ExistsByCodeAsync(command.Dto.Name, command.Id, cancellationToken))
                 .WithMessage("A pricing matrix with this code already exists.");
         });
+    }
+
+    private static async Task<bool> IsPriceAdjustmentTypeUnchangedAsync(
+        IFgsSetupPricingMatrixReadRepository readRepository,
+        long id,
+        short? priceAdjustmentTypeId,
+        CancellationToken cancellationToken)
+    {
+        if (!priceAdjustmentTypeId.HasValue)
+        {
+            return true;
+        }
+
+        var flags = await readRepository.GetFlagsByIdAsync(id, cancellationToken);
+        return flags is null || flags.PriceAdjustmentTypeId == priceAdjustmentTypeId.Value;
     }
 }

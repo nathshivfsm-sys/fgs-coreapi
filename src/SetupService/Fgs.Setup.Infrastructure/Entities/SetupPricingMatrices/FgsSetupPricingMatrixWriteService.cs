@@ -51,7 +51,7 @@ public sealed class FgsSetupPricingMatrixWriteService : IFgsSetupPricingMatrixWr
         await ApplyDefaultMatrixAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return MapToDetail(entity);
+        return await MapToDetailAsync(entity, cancellationToken);
     }
 
     public async Task<FgsSetupPricingMatrixDetailDto> UpdateAsync(
@@ -67,7 +67,6 @@ public sealed class FgsSetupPricingMatrixWriteService : IFgsSetupPricingMatrixWr
         entity.IsDefault = dto.IsDefault;
         entity.IsLaborTierStructure = dto.IsLaborTierStructure;
         entity.IsLaborRateBySkillLevel = dto.IsLaborRateBySkillLevel;
-        entity.PriceAdjustmentTypeId = ResolvePriceAdjustmentType(dto.PriceAdjustmentTypeId);
 
         if (dto.EffectiveFrom.HasValue)
         {
@@ -85,7 +84,7 @@ public sealed class FgsSetupPricingMatrixWriteService : IFgsSetupPricingMatrixWr
         await ApplyDefaultMatrixAsync(entity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return MapToDetail(entity);
+        return await MapToDetailAsync(entity, cancellationToken);
     }
 
     public async Task<FgsSetupPricingMatrixDetailDto> PatchAsync(
@@ -121,11 +120,6 @@ public sealed class FgsSetupPricingMatrixWriteService : IFgsSetupPricingMatrixWr
             entity.IsLaborRateBySkillLevel = dto.IsLaborRateBySkillLevel.Value;
         }
 
-        if (dto.PriceAdjustmentTypeId.HasValue)
-        {
-            entity.PriceAdjustmentTypeId = (PriceAdjustmentType)dto.PriceAdjustmentTypeId.Value;
-        }
-
         if (dto.EffectiveFrom.HasValue)
         {
             entity.EffectiveFrom = dto.EffectiveFrom.Value;
@@ -156,7 +150,7 @@ public sealed class FgsSetupPricingMatrixWriteService : IFgsSetupPricingMatrixWr
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return MapToDetail(entity);
+        return await MapToDetailAsync(entity, cancellationToken);
     }
 
     private async Task<FgsSetupPricingMatrix?> FindMatrixAsync(long id, CancellationToken cancellationToken) =>
@@ -211,8 +205,12 @@ public sealed class FgsSetupPricingMatrixWriteService : IFgsSetupPricingMatrixWr
 
     private static string NormalizeCode(string code) => code.Trim().ToUpperInvariant();
 
-    private static FgsSetupPricingMatrixDetailDto MapToDetail(FgsSetupPricingMatrix entity) =>
-        new(
+    private async Task<FgsSetupPricingMatrixDetailDto> MapToDetailAsync(
+        FgsSetupPricingMatrix entity,
+        CancellationToken cancellationToken)
+    {
+        var category = await ResolveCategoryAsync(entity, cancellationToken);
+        return new(
             entity.Id,
             entity.Code,
             entity.Name,
@@ -220,8 +218,36 @@ public sealed class FgsSetupPricingMatrixWriteService : IFgsSetupPricingMatrixWr
             entity.IsLaborTierStructure,
             entity.IsLaborRateBySkillLevel,
             (short)entity.PriceAdjustmentTypeId,
+            category,
             entity.EffectiveFrom,
             entity.EffectiveTo,
             entity.IsMobileVisible,
             entity.IsActive);
+    }
+
+    private async Task<short> ResolveCategoryAsync(
+        FgsSetupPricingMatrix entity,
+        CancellationToken cancellationToken)
+    {
+        if (entity.IsLaborTierStructure || entity.IsLaborRateBySkillLevel)
+        {
+            return (short)PricingMatrixCategory.Labor;
+        }
+
+        var hasLabor = await _context.FgsSetupPricingMatrixLabors
+            .AnyAsync(l => l.PricingMatrixId == entity.Id && l.IsActive, cancellationToken);
+        if (hasLabor)
+        {
+            return (short)PricingMatrixCategory.Labor;
+        }
+
+        var hasOther = await _context.FgsSetupPricingMatrixOthers
+            .AnyAsync(o => o.PricingMatrixId == entity.Id && o.IsActive, cancellationToken);
+        if (hasOther)
+        {
+            return (short)PricingMatrixCategory.Other;
+        }
+
+        return (short)PricingMatrixCategory.Material;
+    }
 }

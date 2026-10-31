@@ -27,7 +27,7 @@ public sealed class FgsSetupPricingMatrixGetByIdQueryHandlerTests
     public async Task Handle_WhenFound_ReturnsSlimHeaderAndCachesIt()
     {
         var detail = new FgsSetupPricingMatrixDetailDto(
-            1, "STANDARD", "Standard Pricing", true, false, true, 1,
+            1, "STANDARD", "Standard Pricing", true, false, true, 1, 2,
             new DateOnly(2026, 1, 1), null, true, true);
         var repository = new Mock<IFgsSetupPricingMatrixReadRepository>();
         repository.Setup(r => r.GetByIdAsync(1, It.IsAny<CancellationToken>())).ReturnsAsync(detail);

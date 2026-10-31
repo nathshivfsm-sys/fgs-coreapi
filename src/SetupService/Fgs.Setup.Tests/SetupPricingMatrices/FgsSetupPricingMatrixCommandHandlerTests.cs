@@ -5,8 +5,8 @@ using Fgs.MultiTenancy.Persistence;
 using Fgs.Persistence.Implementations;
 using Fgs.Security.Abstractions;
 using Fgs.Setup.Application.Features.SetupPricingMatrices.Commands.CreateFgsSetupPricingMatrix;
+using Fgs.Setup.Application.Features.SetupPricingMatrices.Commands.PatchFgsSetupPricingMatrix;
 using Fgs.Setup.Application.Features.SetupPricingMatrices.Commands.UpdateFgsSetupPricingMatrix;
-using Fgs.Setup.Application.Features.SetupPricingMatrices.Dtos;
 using Fgs.Setup.Infrastructure.Common;
 using Fgs.Foundation.Time;
 using Fgs.Setup.Infrastructure.Database;
@@ -40,6 +40,7 @@ public sealed class FgsSetupPricingMatrixCommandHandlerTests
         response.Success.Should().BeTrue();
         response.StatusCode.Should().Be(201);
         response.Data!.Code.Should().Be("STANDARD");
+        response.Data.Category.Should().Be(1);
         context.FgsSetupPricingMatrices.Should().ContainSingle();
         context.FgsSetupPricingMatrixLabors.Should().BeEmpty();
         context.FgsSetupPricingMatrixLaborTiers.Should().BeEmpty();
@@ -64,17 +65,46 @@ public sealed class FgsSetupPricingMatrixCommandHandlerTests
 
         var response = await handler.Handle(
             new UpdateFgsSetupPricingMatrixCommand(created.Id,
-                new("OLD", "Updated name", false, true, true, 2,
+                new("OLD", "Updated name", false, true, true, 1,
                     new DateOnly(2026, 1, 1), new DateOnly(2026, 12, 31), false)),
             CancellationToken.None);
 
         response.Success.Should().BeTrue();
+        response.Message.Should().Be("Pricing matrix updated successfully.");
         response.Data!.Code.Should().Be("OLD");
         response.Data.Name.Should().Be("Updated name");
         response.Data.IsLaborTierStructure.Should().BeTrue();
+        response.Data.PriceAdjustmentTypeId.Should().Be(1);
+        response.Data.Category.Should().Be(2);
         context.FgsSetupPricingMatrixLabors.Should().BeEmpty();
         context.FgsSetupPricingMatrixMaterialTiers.Should().BeEmpty();
         context.FgsSetupPricingMatrixOthers.Should().BeEmpty();
+        cache.Verify(c => c.RemoveByPrefixAsync(
+            CacheKeys.EntityPrefix(TenantId, CompanyId, "pricingmatrix"),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task PatchHandler_ReturnsSuccessMessageAndInvalidatesCache()
+    {
+        await using var context = await CreateContextAsync();
+        var service = CreateWriteService(context);
+        var created = await service.CreateAsync(
+            new("PATCHME", "Original", false, false, false, 1, null, null, true));
+        var cache = new Mock<ICacheService>();
+        var handler = new PatchFgsSetupPricingMatrixCommandHandler(
+            service, cache.Object, CreateTenantAccessor(),
+            NullLogger<PatchFgsSetupPricingMatrixCommandHandler>.Instance);
+
+        var response = await handler.Handle(
+            new PatchFgsSetupPricingMatrixCommand(created.Id,
+                new(null, "Patched", null, null, null, null, null, null, null, null)),
+            CancellationToken.None);
+
+        response.Success.Should().BeTrue();
+        response.Message.Should().Be("Pricing matrix updated successfully.");
+        response.Data!.Name.Should().Be("Patched");
+        response.Data.PriceAdjustmentTypeId.Should().Be(1);
         cache.Verify(c => c.RemoveByPrefixAsync(
             CacheKeys.EntityPrefix(TenantId, CompanyId, "pricingmatrix"),
             It.IsAny<CancellationToken>()), Times.Once);
